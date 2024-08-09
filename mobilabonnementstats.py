@@ -23,7 +23,7 @@ def fetch_mobiloperators():
     data = json.loads(response.text)
     return {item['id']: {'name': item['fieldData']['name'], 'slug': item['fieldData']['slug']} for item in data['items']}
 
-def update_stats(contract_count, mobiloperator_count, paragraph, avg_price_10, avg_price_100, h1):
+def update_stats(contract_count, mobiloperator_count, paragraph, avg_price_10, avg_price_100, h1, dato):
     url = "https://api.webflow.com/v2/collections/66b3eb1589ff4ef9005da526/items/66b3eb26ab5d3a893f2acd9e/live"
     headers = {
         "accept": "application/json",
@@ -39,7 +39,8 @@ def update_stats(contract_count, mobiloperator_count, paragraph, avg_price_10, a
             "paragraf-billig-dyr-2": f"<p>{paragraph}</p>",
             "avg-price-10": str(avg_price_10),
             "avg-price-100": str(avg_price_100),
-            "h1": h1
+            "h1": h1,
+            "dato": dato
         }
     }
     response = requests.patch(url, json=payload, headers=headers)
@@ -157,15 +158,19 @@ def process_items():
     year = current_date.year
     h1 = f"Alle mobiloperatører {month_name} {year}"
 
+    # Create dato string
+    dato = f"{month_name} {year}"
+
     print(f"Total number of contracts: {contract_count}")
     print(f"Number of unique 'mobiloperator': {len(mobiloperator_prices)}")
     print(f"Paragraph: {paragraph}")
     print(f"Median price for 10GB (non-business): {avg_price_10}")
     print(f"Median price for 100GB (non-business): {avg_price_100}")
     print(f"H1: {h1}")
+    print(f"Dato: {dato}")
 
     # Update the stats in Webflow
-    update_result = update_stats(contract_count, len(mobiloperator_prices), paragraph, avg_price_10, avg_price_100, h1)
+    update_result = update_stats(contract_count, len(mobiloperator_prices), paragraph, avg_price_10, avg_price_100, h1, dato)
     print("Update result:", update_result)
 
 if __name__ == "__main__":
